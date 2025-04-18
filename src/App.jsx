@@ -6,7 +6,7 @@ function App() {
   const [darkMode, setDarkMode] = useState(false); // 다크모드 상태
 
   const fetchNews = () => {
-    let url = 'http://localhost:3001/api/news';
+    let url = 'https://news-app-server-cjp9.onrender.com/api/news';
     if (category) url += `?category=${category}`;
 
     fetch(url)
