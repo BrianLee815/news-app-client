@@ -73,7 +73,7 @@ function App() {
                 rel="noopener noreferrer"
                 className="text-blue-600 dark:text-blue-400 text-sm hover:underline mt-1"
               >
-                원문 보기 →
+                Read More →
               </a>
             </div>
           </li>
