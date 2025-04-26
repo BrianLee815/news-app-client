@@ -12,7 +12,10 @@ function App() {
 
     fetch(url)
       .then(res => res.json())
-      .then(data => setArticles(data.articles || []))
+      .then(data => {
+        // 뉴스 기사 최대 30개만 설정
+        setArticles(data.articles?.slice(0, 50) || []);
+      })
       .catch(err => console.error("뉴스 요청 실패:", err));
   };
 
