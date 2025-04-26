@@ -1,36 +1,24 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 
 function App() {
   const [articles, setArticles] = useState([]);
   const [category, setCategory] = useState('general');
   const [darkMode, setDarkMode] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [page, setPage] = useState(1); // 🔥 페이지 추가
-  const [loading, setLoading] = useState(false); // 🔥 로딩 상태
-  const loader = useRef(null); // 🔥 관찰할 div
+  const [searchTerm, setSearchTerm] = useState(''); // 🔥 추가
 
-  const fetchNews = async () => {
-    setLoading(true);
-    let url = `https://news-app-server-cjp9.onrender.com/api/news?category=${category}&page=${page}`;
+  const fetchNews = () => {
+    let url = 'https://news-app-server-cjp9.onrender.com/api/news';
+    if (category) url += `?category=${category}`;
 
-    try {
-      const res = await fetch(url);
-      const data = await res.json();
-      if (page === 1) {
-        setArticles(data.articles || []);
-      } else {
-        setArticles(prev => [...prev, ...(data.articles || [])]);
-      }
-    } catch (err) {
-      console.error("뉴스 요청 실패:", err);
-    } finally {
-      setLoading(false);
-    }
+    fetch(url)
+      .then(res => res.json())
+      .then(data => setArticles(data.articles || []))
+      .catch(err => console.error("뉴스 요청 실패:", err));
   };
 
   useEffect(() => {
     fetchNews();
-  }, [category, page]);
+  }, [category]);
 
   useEffect(() => {
     if (darkMode) {
@@ -40,31 +28,9 @@ function App() {
     }
   }, [darkMode]);
 
-  // 무한스크롤 (IntersectionObserver)
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && !loading) {
-          setPage(prev => prev + 1);
-        }
-      },
-      { threshold: 1 }
-    );
-    if (loader.current) observer.observe(loader.current);
-
-    return () => {
-      if (loader.current) observer.unobserve(loader.current);
-    };
-  }, [loading]);
-
-  const handleCategoryChange = (e) => {
-    setCategory(e.target.value);
-    setPage(1); // 카테고리 바꿀 때 1페이지로
-  };
-
   // 🔥 검색어로 필터링
   const filteredArticles = articles.filter(article =>
-    article.title?.toLowerCase().includes(searchTerm.toLowerCase())
+    article.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -80,20 +46,21 @@ function App() {
       </div>
 
       <div className="flex flex-col gap-4 mb-4">
-        <select
-          value={category}
-          onChange={handleCategoryChange}
-          className="px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-800 dark:text-white text-sm"
-        >
-          <option value="general">General</option>
-          <option value="business">Business</option>
-          <option value="entertainment">Entertainment</option>
-          <option value="health">Health</option>
-          <option value="science">Science</option>
-          <option value="sports">Sports</option>
-          <option value="technology">Technology</option>
-        </select>
+      <select
+  value={category}
+  onChange={(e) => setCategory(e.target.value)}
+  className="px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-800 dark:text-white text-sm"
+>
+  <option value="general">General</option>
+  <option value="business">Business</option>
+  <option value="entertainment">Entertainment</option>
+  <option value="health">Health</option>
+  <option value="science">Science</option>
+  <option value="sports">Sports</option>
+  <option value="technology">Technology</option>
+</select>
 
+        {/* 🔥 검색창 추가 */}
         <input
           type="text"
           placeholder="Search news..."
@@ -129,20 +96,17 @@ function App() {
             </li>
           ))
         ) : (
-          <p>검색 결과가 없습니다.</p>
+          <p>검색 결과가 없습니다.</p> // 검색어에 해당하는 기사가 없을 때
         )}
       </ul>
-
-      {/* 👇 로딩 감시용 div */}
-      <div ref={loader} className="h-10"></div>
-
-      {/* 로딩 표시 */}
-      {loading && <p className="text-center my-4">Loading...</p>}
     </div>
   );
 }
 
 export default App;
+
+
+
 
 
 
